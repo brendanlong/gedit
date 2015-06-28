@@ -355,6 +355,26 @@ prev_button_clicked (GtkWidget         *button,
 	gdk_event_free (event);
 }
 
+/* Skip unselected pages. */
+static gboolean
+adjust_nth_page_forward (GeditPrintPreview *preview,
+			 gint              *page)
+{
+	gint n_pages = get_n_pages (preview);
+	gint new_page;
+
+	for (new_page = *page; new_page < n_pages; new_page++)
+	{
+		if (gtk_print_operation_preview_is_selected (preview->gtk_preview, new_page))
+		{
+			*page = new_page;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 static void
 next_button_clicked (GtkWidget         *button,
 		     GeditPrintPreview *preview)
@@ -371,7 +391,17 @@ next_button_clicked (GtkWidget         *button,
 	}
 	else
 	{
-		page = preview->cur_page + preview->n_columns;
+		gint i;
+
+		page = preview->cur_page;
+		for (i = 0; i < preview->n_columns; i++)
+		{
+			page++;
+			if (!adjust_nth_page_forward (preview, &page))
+			{
+				break;
+			}
+		}
 	}
 
 	goto_page (preview, MIN (page, n_pages - 1));
