@@ -479,6 +479,51 @@ create_list_box (GeditCloseConfirmationDialog *dlg)
 }
 
 static void
+make_content_expandable (GeditCloseConfirmationDialog *dlg)
+{
+	GtkWidget *content_area;
+	GtkWidget *widget;
+
+	content_area = gtk_dialog_get_content_area (GTK_DIALOG (dlg));
+
+	widget = gtk_message_dialog_get_message_area (GTK_MESSAGE_DIALOG (dlg));
+
+	while (widget != NULL && widget != content_area)
+	{
+		GtkWidget *parent;
+
+		parent = gtk_widget_get_parent (widget);
+
+		if (GTK_IS_BOX (parent))
+		{
+			gboolean expand;
+			gboolean fill;
+			guint padding;
+			GtkPackType pack_type;
+
+			gtk_box_query_child_packing (GTK_BOX (parent),
+						     widget,
+						     &expand,
+						     &fill,
+						     &padding,
+						     &pack_type);
+
+			expand = TRUE;
+			fill = TRUE;
+
+			gtk_box_set_child_packing (GTK_BOX (parent),
+						   widget,
+						   expand,
+						   fill,
+						   padding,
+						   pack_type);
+		}
+
+		widget = parent;
+	}
+}
+
+static void
 build_multiple_docs_dialog (GeditCloseConfirmationDialog *dlg)
 {
 	GtkWidget *message_area;
@@ -492,6 +537,7 @@ build_multiple_docs_dialog (GeditCloseConfirmationDialog *dlg)
 	add_buttons (dlg);
 
 	gtk_window_set_resizable (GTK_WINDOW (dlg), TRUE);
+	make_content_expandable (dlg);
 
 	/* Primary message */
 	if (dlg->disable_save_to_disk)
