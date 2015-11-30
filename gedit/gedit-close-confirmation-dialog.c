@@ -481,7 +481,7 @@ create_list_box (GeditCloseConfirmationDialog *dlg)
 static void
 build_multiple_docs_dialog (GeditCloseConfirmationDialog *dlg)
 {
-	GtkWidget *message_area;
+	GtkWidget *content_area;
 	GtkWidget *vbox;
 	GtkWidget *select_label;
 	GtkWidget *scrolledwindow;
@@ -520,9 +520,14 @@ build_multiple_docs_dialog (GeditCloseConfirmationDialog *dlg)
 	g_free (markup_str);
 
 	/* List of unsaved documents */
+	content_area = gtk_dialog_get_content_area (GTK_DIALOG (dlg));
+	gtk_box_set_spacing (GTK_BOX (content_area), 10);
+
 	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 8);
-	message_area = gtk_message_dialog_get_message_area (GTK_MESSAGE_DIALOG (dlg));
-	gtk_box_pack_start (GTK_BOX (message_area), vbox, TRUE, TRUE, 0);
+	gtk_widget_set_margin_start (vbox, 30);
+	gtk_widget_set_margin_end (vbox, 30);
+	gtk_widget_set_margin_bottom (vbox, 12);
+	gtk_box_pack_start (GTK_BOX (content_area), vbox, TRUE, TRUE, 0);
 
 	if (dlg->disable_save_to_disk)
 	{
